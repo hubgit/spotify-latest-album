@@ -1,0 +1,9 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="spotify-album" attributes="album" noscript>
+  <template>
+    <link rel="stylesheet" href="spotify-album.css">
+    <iframe src="https://embed.spotify.com/?uri=spotify:album:{{ album.id }}"
+      width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
+  </template>
+</polymer-element>

@@ -1,0 +1,69 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/core-ajax/core-ajax.html">
+
+<polymer-element name="spotify-artist" attributes="name">
+  <template>
+    <link rel="stylesheet" href="spotify-artist.css">
+
+    <div id="name">{{ name }}</div>
+
+    <template if="{{ album }}">
+      <spotify-album album="{{ album }}"></spotify-album>
+    </template>
+
+    <core-ajax id="search"
+      url="https://api.spotify.com/v1/search"
+      params="{{ params }}"
+      handleAs="json"
+      response="{{ searchResult }}">
+    </core-ajax>
+
+    <core-ajax id="fetch"
+      handleAs="json"
+      response="{{ albumsResult }}">
+    </core-ajax>
+  </template>
+  <script>
+    (function () {
+      Polymer({
+        name: '',
+        ready: function() {
+          this.searchResult = null;
+          this.albumsResult = null;
+          this.artist = null;
+          this.album = null;
+        },
+        nameChanged: function() {
+          if (this.name) {
+            this.params = {
+              q: 'artist:"' + this.name + '"',
+              type: 'artist',
+              limit: 10
+            };
+
+            this.$.search.go();
+          }
+        },
+        searchResultChanged: function() {
+          if (this.searchResult) {
+            this.artist = this.getBestArtist(this.searchResult.artists.items);
+
+            this.$.fetch.url = this.artist.href + '/albums';
+            this.$.fetch.go();
+          }
+        },
+        getBestArtist: function(artists) {
+          return artists[0]; // TODO: pick best match
+        },
+        albumsResultChanged: function() {
+          if (this.albumsResult) {
+            this.album = this.getLatestAlbum(this.albumsResult.items);
+          }
+        },
+        getLatestAlbum: function(albums) {
+          return albums[0]; // TODO: fetch all by ID and sort by descending release date?
+        }
+      });
+    })();
+  </script>
+</polymer-element>
