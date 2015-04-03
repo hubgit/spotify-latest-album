@@ -11,7 +11,9 @@
       <spotify-album album="{{ album }}"></spotify-album>
 
       <template repeat="{{ item in related }}">
-        <div class="related" on-tap="{{ addRelated }}" data-href="{{ item.href }}">{{ item.name }}</div>
+        <div class="related" on-tap="{{ addRelated }}"
+          style="font-size:{{ item.popularity * 2 }}%"
+          data-href="{{ item.href }}">{{ item.name }}</div>
       </template>
     </template>
 
