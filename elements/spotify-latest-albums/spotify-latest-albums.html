@@ -6,9 +6,7 @@
 
     <template if="{{ !items }}">
       <form>
-        <paper-input-decorator label="Enter one or more artist names (separated by commas), then press Enter" floatingLabel>
-          <input is="core-input" name="artists" value="{{ input }}">
-        </paper-input-decorator>
+          <input is="core-input" name="artists" value="{{ input }}" placeholder="Enter one or more artist names (separated by commas), then press Enter">
       </form>
     </template>
 
