@@ -1,1 +1,1 @@
-:host{display:inline-block;vertical-align:top;padding:10px 0}#name{font-weight:200;font-size:150%}.related{cursor:pointer;padding:5px;transition:opacity .25s;opacity:.5}.related:hover{opacity:1}
+:host{display:inline-block;vertical-align:top;padding:10px 0;width:300px}#name{font-weight:200;font-size:150%}.related{cursor:pointer;padding:5px;transition:opacity .25s;opacity:.5}.related:hover{opacity:1}

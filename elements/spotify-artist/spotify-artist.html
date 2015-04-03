@@ -9,10 +9,12 @@
 
     <template if="{{ album }}">
       <spotify-album album="{{ album }}"></spotify-album>
+    </template>
 
-      <template repeat="{{ item in related }}">
-        <div class="related" on-tap="{{ addRelated }}" data-href="{{ item.href }}">{{ item.name }}</div>
-      </template>
+    <template repeat="{{ item in related }}">
+      <div class="related" on-tap="{{ addRelated }}"
+        style="font-size:{{ item.popularity * 2 }}%"
+        data-href="{{ item.href }}">{{ item.name }}</div>
     </template>
 
     <core-ajax id="search"
@@ -59,16 +61,32 @@
         },
         searchResultChanged: function() {
           if (this.searchResult) {
-            var artist = this.getBestArtist(this.searchResult.artists.items);
+            var artist = this.artist = this.getBestArtist(this.searchResult.artists.items);
             this.fetch(artist.href);
           }
         },
         getBestArtist: function(artists) {
-          return artists[0]; // TODO: pick best match
+          var artistName = this.artist.name;
+
+          // try a case-sensitive exact match first
+          var nameMatches = artists.filter(function(item) {
+            return item.name.trim() === artistName;
+          });
+
+          if (!nameMatches.length) {
+              var normalisedName = artistName.toLowerCase().trim().replace(/[^\w\s]/g, '');
+
+              nameMatches = artists.filter(function(item) {
+                  return item.name.toLowerCase().trim().replace(/[^\w\s]/g, '') === normalisedName;
+              });
+          }
+
+          return nameMatches.length ? nameMatches[0] : artists[0];
         },
         albumsResultChanged: function() {
           if (this.albumsResult) {
             this.album = this.getLatestAlbum(this.albumsResult.items);
+            //this.fire('artist-added');
           }
         },
         getLatestAlbum: function(albums) {
