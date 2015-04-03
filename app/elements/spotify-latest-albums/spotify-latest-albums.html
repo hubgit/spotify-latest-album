@@ -3,38 +3,29 @@
 <polymer-element name="spotify-latest-albums">
   <template>
     <link rel="stylesheet" href="spotify-latest-albums.css">
-    <template if="{{ !items }}">
-      <form layout horizontal>
-        <div flex>
-          <paper-input-decorator label="Enter one or more artist names, separated by commas" floatingLabel>
-            <input is="core-input" name="artists">
-          </paper-input-decorator>
-        </div>
 
-        <div>
-          <button type="submit">Start</button>
-        </div>
+    <template if="{{ !items }}">
+      <form>
+        <paper-input-decorator label="Enter one or more artist names (separated by commas), then press Enter" floatingLabel>
+          <input is="core-input" name="artists" value="{{ input }}">
+        </paper-input-decorator>
       </form>
     </template>
 
     <template repeat="{{ items }}">
-      <spotify-artist artist="{{ }}" on-add-artist="{{ addArtist }}"></spotify-artist>
+      <spotify-artist artist="{{ }}"
+        on-add-artist="{{ addArtist }}"
+        on-artist-added="{{ artistAdded }}"></spotify-artist>
     </template>
   </template>
   <script>
     (function () {
       Polymer({
         ready: function() {
-          var params = this.parseQuery();
-
-          if (params.artists) {
-            this.items = params.artists.split(/,/).map(function(name) {
-              return { name: name.trim() };
-            });
-          }
+          this.parseQuery();
         },
         parseQuery: function() {
-          return window.location.search.substr(1).split(/&/).reduce(function(output, item) {
+          var params = window.location.search.substr(1).split(/&/).reduce(function(output, item) {
             var parts = item.split(/=/);
             var key = decodeURIComponent(parts[0]);
             var value = decodeURIComponent(parts[1]);
@@ -43,9 +34,24 @@
 
             return output;
           }, {});
+
+          if (params.artists) {
+            this.input = params.artists;
+            this.parseInput();
+          }
+        },
+        parseInput: function() {
+          this.items = this.input.split(/,/).map(function(name) {
+            return { name: name.trim() };
+          });
         },
         addArtist: function(event, details) {
           this.items.push(details);
+          this.async(this.artistAdded);
+        },
+        artistAdded: function() {
+          this.scrollLeft = this.scrollWidth - this.clientWidth;
+          document.body.scrollTop = 0;
         }
       });
     })();

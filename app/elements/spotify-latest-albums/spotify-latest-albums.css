@@ -3,6 +3,7 @@
   font-family: "Roboto", "Helvetica Neue", "Helvetica", sans-serif;
   overflow-x: auto;
   white-space: nowrap;
+  padding: 10px;
 }
 
 #input {
