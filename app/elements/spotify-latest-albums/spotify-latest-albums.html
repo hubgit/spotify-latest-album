@@ -1,0 +1,40 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="spotify-latest-albums">
+  <template>
+    <link rel="stylesheet" href="spotify-latest-albums.css">
+    <template repeat="{{ items }}">
+      <spotify-artist name="{{ }}"></spotify-artist>
+    </template>
+  </template>
+  <script>
+    (function () {
+      Polymer({
+        ready: function() {
+          var params = location.search.substr(1).split(/&/).reduce(function(output, item) {
+            var parts = item.split(/=/);
+            var key = decodeURIComponent(parts[0]);
+            var value = decodeURIComponent(parts[1]);
+
+            output[key] = value.replace(/\+/g, ' ');
+
+            return output;
+          }, {});
+
+          if (params.artists) {
+            this.items = params.artists.split(/,/);
+          }
+        },
+        parseInput: function() {
+          this.items = this.$.input.value.split(/\n/).map(function(item) {
+            return item.trim();
+          });
+
+          if (this.items.length) {
+            location.search = '?' + this.items.join(',');
+          }
+        }
+      });
+    })();
+  </script>
+</polymer-element>
