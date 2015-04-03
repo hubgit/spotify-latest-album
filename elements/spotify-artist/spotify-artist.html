@@ -1,14 +1,18 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/core-ajax/core-ajax.html">
 
-<polymer-element name="spotify-artist" attributes="name">
+<polymer-element name="spotify-artist" attributes="artist">
   <template>
     <link rel="stylesheet" href="spotify-artist.css">
 
-    <div id="name">{{ name }}</div>
+    <div id="name">{{ artist.name }}</div>
 
     <template if="{{ album }}">
       <spotify-album album="{{ album }}"></spotify-album>
+
+      <template repeat="{{ item in related }}">
+        <div class="related" on-tap="{{ addRelated }}" data-href="{{ item.href }}">{{ item.name }}</div>
+      </template>
     </template>
 
     <core-ajax id="search"
@@ -18,38 +22,45 @@
       response="{{ searchResult }}">
     </core-ajax>
 
-    <core-ajax id="fetch"
+    <core-ajax id="albums"
       handleAs="json"
       response="{{ albumsResult }}">
+    </core-ajax>
+
+    <core-ajax id="related"
+      handleAs="json"
+      response="{{ relatedResult }}">
     </core-ajax>
   </template>
   <script>
     (function () {
       Polymer({
-        name: '',
         ready: function() {
-          this.searchResult = null;
-          this.albumsResult = null;
-          this.artist = null;
-          this.album = null;
-        },
-        nameChanged: function() {
-          if (this.name) {
-            this.params = {
-              q: 'artist:"' + this.name + '"',
-              type: 'artist',
-              limit: 10
-            };
+          if (this.artist) {
+            if (this.artist.href) {
+              this.fetch(this.artist.href);
+            } else {
+              this.params = {
+                q: 'artist:"' + this.artist.name + '"',
+                type: 'artist',
+                limit: 10
+              };
 
-            this.$.search.go();
+              this.$.search.go();
+            }
           }
+        },
+        fetch: function(href) {
+          this.$.albums.url = href + '/albums';
+          this.$.albums.go();
+
+          this.$.related.url = href + '/related-artists';
+          this.$.related.go();
         },
         searchResultChanged: function() {
           if (this.searchResult) {
-            this.artist = this.getBestArtist(this.searchResult.artists.items);
-
-            this.$.fetch.url = this.artist.href + '/albums';
-            this.$.fetch.go();
+            var artist = this.getBestArtist(this.searchResult.artists.items);
+            this.fetch(artist.href);
           }
         },
         getBestArtist: function(artists) {
@@ -62,6 +73,17 @@
         },
         getLatestAlbum: function(albums) {
           return albums[0]; // TODO: fetch all by ID and sort by descending release date?
+        },
+        relatedResultChanged: function() {
+          if (this.relatedResult) {
+            this.related = this.relatedResult.artists;
+          }
+        },
+        addRelated: function(event, details, sender) {
+          this.fire('add-artist', {
+            href: sender.getAttribute('data-href'),
+            name: sender.textContent
+          });
         }
       });
     })();
